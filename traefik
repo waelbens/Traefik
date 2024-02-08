@@ -1,0 +1,22 @@
+version: '3'
+services:
+  traefik:
+    image: traefik:v3.0
+    command: --api.insecure=true --api.dashboard=true --providers.docker=true --providers.docker.exposedbydefault=false --entryPoints.web.address=:80 --entryPoints.web.forwardedHeaders.insecure --log=true --log.level=DEBUG --log.filepath=/var/log/traefik.log --accesslog.filepath=/var/log/traefik-access.log
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    restart: always
+    networks:
+      - network
+    environment:
+      - HTTP_PROXY=
+      - HTTPS_PROXY=
+      - http_proxy=
+      - https_proxy=
+ 
+networks:
+  network:
+    external: false
