@@ -1,0 +1,42 @@
+services:
+  php:
+    image: php:latest
+    build:
+      context: .
+      dockerfile: build/php/Dockerfile
+      args:
+        - http_proxy
+        - https_proxy
+        - no_proxy
+    environment:
+      - http_proxy
+      - https_proxy
+      - no_proxy
+      - TZ=Europe/Paris
+    volumes:
+      - .:/var/www/application
+    restart: always
+    networks:
+      - internal
+    labels:
+      - "traefik.enable=false"
+ 
+  nginx:
+    image: nginx:1.22-alpine
+    volumes:
+      - ./build/nginx:/etc/nginx/conf.d
+      - .:/var/www/application
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.nginx.rule=Host(`application.exemple.com`)"
+      - "traefik.docker.network=traefik_network"
+    networks:
+      - traefik_network
+      - internal
+ 
+networks:
+  traefik_network:
+    external: true
+  internal:
+    external: false
